@@ -4205,46 +4205,6 @@
     }
   },
   {
-    "comment": "Cadava berries",
-    "itemId": 753,
-    "amount": 1,
-    "tile": {
-      "x": 3275,
-      "y": 3370,
-      "plane": 0
-    }
-  },
-  {
-    "comment": "Cadava berries",
-    "itemId": 753,
-    "amount": 1,
-    "tile": {
-      "x": 3274,
-      "y": 3370,
-      "plane": 0
-    }
-  },
-  {
-    "comment": "Redberries",
-    "itemId": 1951,
-    "amount": 1,
-    "tile": {
-      "x": 3276,
-      "y": 3373,
-      "plane": 0
-    }
-  },
-  {
-    "comment": "Redberries",
-    "itemId": 1951,
-    "amount": 1,
-    "tile": {
-      "x": 3279,
-      "y": 3373,
-      "plane": 0
-    }
-  },
-  {
     "comment": "Cup of tea",
     "itemId": 1978,
     "amount": 1,

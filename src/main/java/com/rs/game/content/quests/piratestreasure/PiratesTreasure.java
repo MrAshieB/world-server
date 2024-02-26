@@ -146,16 +146,6 @@ public class PiratesTreasure extends QuestOutline {
 		e.getPlayer().getQuestManager().getAttribs(Quest.PIRATES_TREASURE).setB("TREASURE_LOC_KNOWN", true);
 	});
 
-	public static ObjectClickHandler bananaTreePlantation = new ObjectClickHandler(new Object[] { 2073, 2074, 2075, 2076, 2077, 2078 }, e -> {
-		if (e.getObjectId() == 2078) {
-			e.getPlayer().sendMessage("There are no bananas left on the tree.");
-			return;
-		}
-		e.getPlayer().anim(2280);
-		e.getPlayer().getInventory().addItem(BANANA, 1);
-		e.getObject().setIdTemporary(e.getObjectId()+1, Ticks.fromSeconds(30));
-	});
-
 	@Override
 	public void complete(Player player) {
 		player.getInventory().addItem(new Item(CASKET), true);

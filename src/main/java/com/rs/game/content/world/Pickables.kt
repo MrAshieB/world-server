@@ -8,6 +8,12 @@ import com.rs.plugin.annotations.ServerStartupEvent
 import com.rs.plugin.kts.onObjectClick
 import com.rs.utils.Ticks
 
+enum class RegrowablePickables(val itemId: Int, val animId: Int, val respawnTime: Int, val playerLockTime: Int, val objectIds: IntArray) {
+    CADAVA_BUSH(753, 2280, 60, 1, intArrayOf(23625, 23626, 23627)),
+    REDBERRY_BUSH(1951, 2280, 60, 1, intArrayOf(23628, 23629, 23630)),
+    BANANA_TREE(1963, 827, 30, 1, intArrayOf(2073, 2074, 2075, 2076, 2077, 2078));
+}
+
 @ServerStartupEvent
 fun mapPickables() {
     onObjectClick("Flax", "Cabbage", "Potato", "Wheat", "Onion", "Pineapple Plant") { (player, obj, option) ->
@@ -23,28 +29,40 @@ fun mapPickables() {
         }
     }
 
-    onObjectClick(2073, 2074, 2075, 2076, 2077, 2078, 23625, 23626, 23627, 23628, 23629, 23630) { (player, obj) ->
-        when(obj.id) {
-            2078 -> {
-                player.sendMessage("There are no bananas left on the tree.")
-                return@onObjectClick
+    for (pickable in RegrowablePickables.values()) {
+        for (objectId in pickable.objectIds) {
+            onObjectClick(objectId) { (player, obj) ->
+                val itemName = when {
+                    pickable.name.endsWith("TREE") -> "bananas"
+                    pickable.name.endsWith("BUSH") -> "berries"
+                    else -> "items"
+                }
+                if (obj.id == pickable.objectIds.last()) {
+                    player.sendMessage("There are no $itemName left on this ${if (pickable.name.endsWith("TREE")) "tree" else "bush"}.")
+                    player.sendMessage("More will grow soon.")
+                    return@onObjectClick
+                }
+                if (player.inventory.hasFreeSlots()) {
+                    player.lock(pickable.playerLockTime)
+                    player.anim(pickable.animId)
+                    player.inventory.addItem(pickable.itemId, 1)
+                    obj.setId(obj.id + 1)
+                    obj.tasks.scheduleTimer(
+                        "regrow",
+                        Ticks.fromSeconds(pickable.respawnTime),
+                        Ticks.fromSeconds(pickable.respawnTime)
+                    ) regrowTimer@{
+                        if (obj.id > obj.originalId)
+                            obj.setId(obj.id - 1)
+                        else
+                            return@regrowTimer false
+                        return@regrowTimer true
+                    }
+                } else {
+                    player.sendMessage("Your inventory is too full to pick the $itemName from this ${if (pickable.name.endsWith("TREE")) "tree" else "bush"}.")
+                    return@onObjectClick
+                }
             }
-            23627, 23630 -> {
-                player.sendMessage("There are no berries left on the bush.")
-                return@onObjectClick
-            }
-            2073, 2074, 2075, 2076, 2077 -> player.inventory.addItem(1963, 1)
-            23625, 23626, -> player.inventory.addItem(753, 1)
-            23628, 23629, -> player.inventory.addItem(1951, 1)
-        }
-        player.anim(2280)
-        obj.setId(obj.id + 1)
-        obj.tasks.scheduleTimer("regrow", Ticks.fromSeconds(15), Ticks.fromSeconds(15)) {
-            if (obj.id > obj.originalId)
-                obj.setId(obj.id - 1)
-            else
-                return@scheduleTimer false
-            return@scheduleTimer true
         }
     }
 }
